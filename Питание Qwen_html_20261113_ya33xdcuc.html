@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Путешествие в страну Здоровья — игра-презентация для детей 6–9 лет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#3fa34d; --green2:#7ed957; --amber:#ffb703; --orange:#fb8500;
+  --red:#ef476f; --tomato:#e63946; --berry:#9b5de5; --magenta:#f15bb5;
+  --blue:#118ab2; --sky:#4cc9f0; --cream:#fff8e7; --ink:#3d2c29; --ink2:#7a6a5f;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;font-family:"Nunito",Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--cream);overflow:hidden}
+button{font-family:inherit}
+
+/* ---------- скроллбары в стиле палитры ---------- */
+.slide,.chat{scrollbar-width:thin;scrollbar-color:var(--amber) rgba(255,255,255,.4)}
+.slide::-webkit-scrollbar,.chat::-webkit-scrollbar{width:12px}
+.slide::-webkit-scrollbar-track,.chat::-webkit-scrollbar-track{background:rgba(255,255,255,.4);border-radius:99px}
+.slide::-webkit-scrollbar-thumb,.chat::-webkit-scrollbar-thumb{background:linear-gradient(var(--amber),var(--orange));border-radius:99px;border:2px solid rgba(255,255,255,.6)}
+.slide::-webkit-scrollbar-thumb:hover,.chat::-webkit-scrollbar-thumb:hover{background:var(--orange)}
+
+/* ---------- верхняя панель ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;gap:10px;padding:0 14px;
+  background:rgba(255,248,231,.92);backdrop-filter:blur(10px);z-index:100;box-shadow:0 4px 18px rgba(61,44,41,.14)}
+.logo{font-family:"Comfortaa",sans-serif;font-weight:700;font-size:18px;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.logo .logo-emoji{font-size:26px;animation:bob 3s ease-in-out infinite}
+.spacer{flex:1}
+.star-chip{background:linear-gradient(135deg,#fff,#fff3c4);border:2px solid var(--amber);border-radius:99px;padding:7px 14px;font-weight:900;font-size:15px;box-shadow:0 4px 12px rgba(255,183,3,.35);white-space:nowrap}
+.icon-btn{min-width:44px;height:44px;border-radius:14px;border:none;background:#fff;box-shadow:0 4px 12px rgba(61,44,41,.15);font-size:20px;cursor:pointer;transition:.15s;display:grid;place-items:center;padding:0 10px}
+.icon-btn:hover{transform:translateY(-2px)}
+.icon-btn:active{transform:scale(.92)}
+.pptx-btn{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-weight:900;font-size:14px}
+
+/* ---------- нижняя навигация ---------- */
+.bottombar{position:fixed;bottom:0;left:0;right:0;height:86px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 16px;
+  background:rgba(255,248,231,.92);backdrop-filter:blur(10px);z-index:100;box-shadow:0 -4px 18px rgba(61,44,41,.12)}
+.nav-btn{width:60px;height:60px;border-radius:50%;font-size:26px;border:none;background:linear-gradient(135deg,var(--amber),var(--orange));color:#fff;
+  box-shadow:0 8px 20px rgba(251,133,0,.45);cursor:pointer;transition:.15s;flex:none}
+.nav-btn:hover{transform:translateY(-3px) scale(1.05)}
+.nav-btn:active{transform:scale(.92)}
+.nav-btn:disabled{opacity:.35;cursor:default;transform:none}
+.dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:46vw}
+.dot{width:12px;height:12px;border-radius:99px;border:none;background:rgba(61,44,41,.22);cursor:pointer;transition:.25s;padding:0}
+.dot.visited{background:var(--amber)}
+.dot.active{width:32px;background:var(--green)}
+.counter-chip{font-weight:900;background:#fff;border-radius:99px;padding:9px 16px;box-shadow:0 4px 12px rgba(61,44,41,.15);white-space:nowrap}
+
+/* ---------- слайды ---------- */
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;padding:82px 18px 104px;overflow-y:auto;display:none;
+  background:linear-gradient(160deg,var(--bg1),var(--bg2))}
+.slide.active{display:block}
+.slide-inner{position:relative;z-index:2;max-width:1150px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+.kicker{font-family:"Comfortaa",sans-serif;font-weight:700;font-size:clamp(12px,1.5vw,15px);background:rgba(255,255,255,.8);padding:7px 18px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.slide-title{font-family:"Comfortaa",sans-serif;font-weight:700;font-size:clamp(26px,4.6vw,52px);margin:0;line-height:1.12;text-shadow:0 2px 0 rgba(255,255,255,.4)}
+.lead{font-size:clamp(16px,2.2vw,23px);font-weight:800;max-width:780px;margin:0;color:var(--ink)}
+.card{background:rgba(255,255,255,.94);border-radius:28px;padding:22px;box-shadow:0 16px 40px rgba(61,44,41,.18)}
+.fun-note{font-size:13px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.65);padding:8px 16px;border-radius:14px;max-width:760px}
+.slide.dark .slide-title{color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.slide.dark .lead{color:#e8ecf7}
+.slide.dark .kicker{background:rgba(255,255,255,.16);color:#dfe6f5}
+.slide.dark .fun-note{background:rgba(255,255,255,.14);color:#cfd8ea}
+
+.float-emoji{position:absolute;z-index:1;pointer-events:none;animation:floaty 7s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-20px) rotate(7deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes popIn{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.slide.active .pop{animation:popIn .55s cubic-bezier(.34,1.4,.64,1) both;animation-delay:var(--d,0s)}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-6deg)}100%{transform:scale(1)}}
+.pulse{animation:pulse .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.shake{animation:shake .35s}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+
+/* ---------- кнопки ---------- */
+.btn{border:none;border-radius:99px;padding:16px 32px;font-size:clamp(17px,2.2vw,22px);font-weight:900;color:#fff;cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);transition:.15s}
+.btn:hover{transform:translateY(-3px) scale(1.03)}
+.btn:active{transform:scale(.94)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2))}
+.btn-sky{background:linear-gradient(135deg,var(--blue),var(--sky))}
+.btn-amber{background:linear-gradient(135deg,var(--orange),var(--amber))}
+.btn-red{background:linear-gradient(135deg,var(--tomato),var(--red))}
+.btn-berry{background:linear-gradient(135deg,var(--berry),var(--magenta))}
+.btn-small{padding:10px 20px;font-size:15px}
+.link-reset{background:none;border:none;color:var(--ink2);font-weight:800;font-size:14px;cursor:pointer;text-decoration:underline}
+
+/* ---------- маскот ---------- */
+.mascot-wrap{display:inline-block;cursor:pointer;transition:.2s}
+.mascot-wrap:hover{transform:scale(1.05)}
+.mascot-wrap svg{display:block;width:100%;height:auto;animation:bob 3.2s ease-in-out infinite}
+.mascot-wrap .arm-r{transform-box:view-box;transform-origin:106px 74px;animation:wave 2.4s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
+@keyframes jumpAnim{0%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-52px) scale(.96,1.06)}60%{transform:translateY(0) scale(1.08,.9)}100%{transform:translateY(0) scale(1,1)}}
+.mascot-wrap.jumping{animation:jumpAnim .5s}
+.mascot-wrap.wiggle{animation:shake .4s}
+
+/* ---------- слайд 2: батарейка ---------- */
+.battery{width:min(430px,82vw);height:56px;border:5px solid var(--ink);border-radius:18px;position:relative;background:#fff;margin:6px auto}
+.battery::after{content:'';position:absolute;right:-17px;top:11px;width:11px;height:24px;background:var(--ink);border-radius:4px}
+.battery-fill{height:100%;width:0%;border-radius:11px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.battery-label{font-weight:900;font-size:20px}
+.food-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.food-btn{font-size:38px;width:76px;height:76px;border-radius:22px;border:3px solid #fff;background:#fff;box-shadow:0 8px 18px rgba(61,44,41,.18);cursor:pointer;transition:.15s}
+.food-btn:hover{transform:scale(1.12) rotate(-5deg)}
+.badges{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.badge{opacity:.3;filter:grayscale(1);transition:.4s;font-weight:900;font-size:clamp(15px,2vw,19px);background:#fff;border-radius:18px;padding:10px 18px;box-shadow:0 6px 14px rgba(61,44,41,.12)}
+.badge.on{opacity:1;filter:none;transform:scale(1.06);box-shadow:0 8px 20px rgba(63,163,77,.35)}
+
+/* ---------- слайд 3: тарелка ---------- */
+.plate-layout{display:flex;gap:26px;flex-wrap:wrap;align-items:center;justify-content:center}
+.plate-wrap{transition:.4s}
+.plate-wrap.glow{filter:drop-shadow(0 0 26px rgba(126,217,87,.9))}
+.plate-svg{width:min(340px,84vw)}
+.slot circle{fill:rgba(255,255,255,.55);stroke:rgba(61,44,41,.35);stroke-width:3;stroke-dasharray:7 7;transition:.3s}
+.slot.filled circle{fill:#fff;stroke:var(--green);stroke-dasharray:none}
+.slot text{font-size:42px;text-anchor:middle;dominant-baseline:central}
+.plate-groups{display:flex;flex-direction:column;gap:12px;text-align:left}
+.plate-group-label{font-weight:900;font-size:15px;margin-bottom:5px}
+.plate-chip{font-size:30px;width:60px;height:60px;border-radius:18px;border:3px solid #fff;background:#fff;box-shadow:0 6px 14px rgba(61,44,41,.16);cursor:pointer;transition:.15s;margin-right:8px}
+.plate-chip:hover{transform:scale(1.12)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.legend span{font-weight:900;font-size:14px;padding:7px 14px;border-radius:99px;color:#fff}
+
+/* ---------- слайд 4: радуга ---------- */
+.rainbow-svg{width:min(430px,88vw)}
+.rain-band{cursor:pointer;opacity:.22;transition:.3s}
+.rain-band:hover{opacity:.55}
+.rain-band.got{opacity:1}
+.rainbow-svg.complete{animation:pulse .8s;filter:drop-shadow(0 0 22px rgba(255,183,3,.8))}
+.rain-foods{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;min-height:64px}
+.rain-chip{background:#fff;border-radius:18px;border-bottom:5px solid;padding:8px 14px;font-size:24px;box-shadow:0 6px 14px rgba(61,44,41,.15);animation:popIn .4s both}
+.rain-chip span{display:block;font-size:12px;font-weight:900;color:var(--ink2)}
+
+/* ---------- слайд 5: сахар ---------- */
+.drinks{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.drink-card{width:180px;background:#fff;border-radius:24px;padding:16px;cursor:pointer;box-shadow:0 10px 24px rgba(61,44,41,.18);transition:.2s;border:4px solid transparent}
+.drink-card:hover{transform:translateY(-5px)}
+.drink-card.revealed{border-color:var(--berry);cursor:default}
+.drink-emoji{font-size:56px}
+.drink-name{font-weight:900;font-size:18px;margin:6px 0}
+.cubes{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;min-height:62px;align-content:center}
+.cube{width:25px;height:25px;background:#fff;border:2px solid #d9c9a3;border-radius:6px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.07);animation:popIn .3s both}
+.sugar-label{font-weight:900;font-size:14px;min-height:38px;color:var(--ink2)}
+.sugar-label.champ{color:var(--green)}
+@keyframes cubeIn{from{transform:translateY(-18px) scale(.5);opacity:0}to{transform:none;opacity:1}}
+
+/* ---------- слайд 6: светофор ---------- */
+.traffic-item{font-size:70px;line-height:1}
+.traffic-name{font-weight:900;font-size:24px;margin:8px 0}
+.lights{display:flex;gap:18px;justify-content:center;margin:10px 0}
+.light{width:88px;height:88px;border-radius:50%;border:5px solid #fff;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.22);transition:.15s;color:#fff;font-weight:900;font-size:12.5px;line-height:1.2}
+.light:hover{transform:scale(1.1)}
+.light.green{background:radial-gradient(circle at 35% 30%,#9be15d,var(--green))}
+.light.yellow{background:radial-gradient(circle at 35% 30%,#ffd166,var(--orange))}
+.light.red{background:radial-gradient(circle at 35% 30%,#ff8fa3,var(--tomato))}
+.feedback{min-height:52px;font-weight:900;font-size:clamp(15px,2vw,19px);padding:8px;border-radius:14px}
+.feedback.good{color:var(--green);background:#e8f7ee}
+.feedback.warn{color:#b26a00;background:#fff3d6}
+.traffic-progress{font-weight:900;color:var(--ink2)}
+
+/* ---------- слайд 7: вода ---------- */
+.glass{width:132px;height:192px;border:6px solid rgba(255,255,255,.95);border-top-width:4px;border-radius:12px 12px 28px 28px;position:relative;overflow:hidden;background:rgba(255,255,255,.3);box-shadow:0 12px 28px rgba(17,138,178,.35);margin:0 auto}
+.water{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(180deg,#7fd8f7,var(--blue));transition:height .6s cubic-bezier(.34,1.4,.64,1)}
+.water::before{content:'';position:absolute;top:-6px;left:0;right:0;height:12px;background:rgba(255,255,255,.45);border-radius:50%}
+.bubble{position:absolute;bottom:6px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.85);animation:rise 1.15s ease-in forwards}
+@keyframes rise{to{transform:translateY(-170px);opacity:0}}
+
+/* ---------- слайд 8: прыжки ---------- */
+.jump-stage{position:relative;width:230px;height:230px;margin:0 auto}
+.jump-stage svg.ring{position:absolute;inset:0;width:100%;height:100%}
+.jump-mascot{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:130px}
+.jump-count{font-family:"Comfortaa",sans-serif;font-weight:700;font-size:34px}
+
+/* ---------- слайд 9: сон ---------- */
+.sleep-scene{width:min(580px,94vw);border-radius:28px;padding:24px;background:linear-gradient(180deg,#8ecae6,#e0fbfc);transition:1s;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.2)}
+.sleep-scene.night{background:linear-gradient(180deg,#1d2d50,#3a4a6b);color:#fff}
+.sun-icon,.moon-icon{position:absolute;top:14px;font-size:44px;transition:.8s}
+.sun-icon{right:18px}
+.moon-icon{right:18px;opacity:0;transform:translateY(-30px)}
+.night .sun-icon{opacity:0;transform:translateY(30px)}
+.night .moon-icon{opacity:1;transform:none}
+.star-dot{position:absolute;color:#fff;opacity:0;transition:1s;animation:twinkle 2s ease-in-out infinite}
+.night .star-dot{opacity:1}
+@keyframes twinkle{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+.zzz{position:absolute;font-weight:900;font-size:26px;opacity:0;color:#bcd0ff}
+.night .zzz{animation:zfloat 2.4s ease-in-out infinite}
+@keyframes zfloat{0%{opacity:0;transform:translateY(8px)}40%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+.switch-row{display:flex;align-items:center;gap:12px;justify-content:center;font-weight:900;font-size:18px}
+.switch{position:relative;width:76px;height:40px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.track{position:absolute;inset:0;background:linear-gradient(135deg,var(--amber),var(--orange));border-radius:99px;cursor:pointer;transition:.4s;box-shadow:inset 0 3px 8px rgba(0,0,0,.2)}
+.track::before{content:'☀️';position:absolute;left:5px;top:4px;width:32px;height:32px;background:#fff;border-radius:50%;display:grid;place-items:center;font-size:17px;transition:.4s}
+.switch input:checked + .track{background:linear-gradient(135deg,#3a4a6b,#1d2d50)}
+.switch input:checked + .track::before{content:'🌙';transform:translateX(36px)}
+.sleep-steps{display:flex;flex-direction:column;gap:10px;margin-top:14px;opacity:.35;pointer-events:none;transition:.6s}
+.night .sleep-steps{opacity:1;pointer-events:auto}
+.sleep-step{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.92);color:var(--ink);border-radius:16px;padding:12px 16px;cursor:pointer;font-weight:800;font-size:16px;border:none;text-align:left;transition:.2s}
+.sleep-step.done{background:#e8f7ee;text-decoration:line-through}
+.sleep-step .tick{margin-left:auto;font-size:20px}
+
+/* ---------- слайд 11: чат ---------- */
+.chat{width:min(580px,94vw);height:290px;overflow-y:auto;background:#fff;border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:10px;text-align:left;box-shadow:0 12px 30px rgba(61,44,41,.18)}
+.msg{max-width:82%;padding:11px 15px;border-radius:18px;font-weight:800;font-size:15.5px;animation:popIn .3s both;line-height:1.35}
+.msg.bot{background:#e8f7ee;align-self:flex-start;border-bottom-left-radius:6px}
+.msg.user{background:linear-gradient(135deg,var(--blue),var(--sky));color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.typing{display:flex;gap:5px;padding:12px 16px;background:#e8f7ee;border-radius:18px;align-self:flex-start}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.chat-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.chat-chip{border:none;background:#fff;border-radius:99px;padding:11px 18px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 6px 14px rgba(61,44,41,.16);transition:.15s}
+.chat-chip:hover{transform:translateY(-3px);background:#fff3c4}
+
+/* ---------- слайд 12: помощь ---------- */
+.help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;width:min(680px,94vw)}
+.help-card{background:#fff;border-radius:20px;padding:16px;cursor:pointer;font-weight:900;font-size:16px;border:4px solid transparent;box-shadow:0 8px 18px rgba(61,44,41,.15);transition:.2s}
+.help-card:hover{transform:translateY(-4px)}
+.help-card.active{border-color:var(--red);background:#fff0f3}
+.help-card .he{font-size:38px;display:block;margin-bottom:6px}
+.help-msg{min-height:30px;font-weight:900;font-size:clamp(15px,2vw,19px);color:var(--tomato)}
+
+/* ---------- слайд 13: сортировка ---------- */
+.sort-card{background:#fff;border-radius:26px;padding:20px 40px;box-shadow:0 12px 28px rgba(61,44,41,.2);transition:.2s}
+.sort-emoji{font-size:76px;line-height:1.1}
+.sort-name{font-weight:900;font-size:24px}
+@keyframes flashGood{0%,100%{box-shadow:0 12px 28px rgba(61,44,41,.2)}50%{box-shadow:0 0 0 10px rgba(126,217,87,.7)}}
+@keyframes flashBad{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.sort-card.flash-good{animation:flashGood .6s}
+.sort-card.flash-bad{animation:flashBad .4s;box-shadow:0 0 0 8px rgba(239,71,111,.55)}
+.baskets{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:min(640px,94vw)}
+.basket{flex:1;min-width:220px;padding:20px;border-radius:24px;border:4px dashed var(--green);background:#fff;font-size:19px;font-weight:900;cursor:pointer;transition:.15s;color:var(--ink)}
+.basket.sometimes{border-color:var(--magenta)}
+.basket:hover{transform:translateY(-4px);border-style:solid;background:#f4fff6}
+.basket.sometimes:hover{background:#fff0fa}
+.basket .be{font-size:36px;display:block}
+
+/* ---------- слайд 14: челлендж ---------- */
+.check-list{display:flex;flex-direction:column;gap:10px;width:min(620px,94vw)}
+.check-row{display:flex;gap:14px;align-items:center;background:#fff;border-radius:18px;padding:14px 16px;cursor:pointer;font-weight:800;font-size:clamp(15px,2vw,18px);box-shadow:0 6px 14px rgba(61,44,41,.14);transition:.2s;border:none;text-align:left;color:var(--ink)}
+.check-row:hover{transform:translateX(5px)}
+.check-row.done{background:#e8f7ee}
+.check-box{flex:none;width:36px;height:36px;border-radius:12px;border:3px solid var(--green);display:grid;place-items:center;font-size:21px;color:#fff;background:#fff;transition:.2s}
+.check-row.done .check-box{background:var(--green)}
+.check-row.done .check-box::before{content:'✓'}
+.progress{height:24px;border-radius:99px;background:rgba(255,255,255,.65);overflow:hidden;width:min(620px,94vw);box-shadow:inset 0 3px 8px rgba(0,0,0,.12)}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green2),var(--amber));transition:width .5s;border-radius:99px}
+.reveal{display:none}
+.reveal.show{display:block;animation:popIn .5s both}
+.medal{font-size:80px;animation:bob 2s ease-in-out infinite}
+
+/* ---------- слайд 15: диплом ---------- */
+.diploma{background:#fffdf5;border:6px double var(--amber);border-radius:22px;padding:24px 30px;width:min(520px,92vw);box-shadow:0 16px 40px rgba(61,44,41,.25)}
+.diploma h3{font-family:"Comfortaa",sans-serif;margin:0 0 8px;font-size:24px;color:var(--orange)}
+.diploma .dname{font-family:"Comfortaa",sans-serif;font-size:clamp(24px,4vw,36px);font-weight:700;color:var(--green);margin:6px 0}
+.name-input{border:3px solid var(--sky);border-radius:99px;padding:13px 22px;font-size:18px;font-weight:800;font-family:inherit;outline:none;width:min(300px,80vw);text-align:center}
+.name-input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(76,201,240,.3)}
+.recap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:34px}
+.recap span{background:#fff;border-radius:18px;padding:8px 12px;box-shadow:0 6px 14px rgba(61,44,41,.15);animation:bob 3s ease-in-out infinite}
+
+/* ---------- тост и салют ---------- */
+#toast{position:fixed;left:50%;bottom:106px;transform:translate(-50%,20px);opacity:0;background:#fff;padding:13px 24px;border-radius:99px;font-weight:900;font-size:16px;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:200;transition:.3s;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:300}
+.sun-big{font-size:clamp(60px,9vw,100px);animation:spinSlow 26s linear infinite;display:inline-block}
+.hint-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hint-chips span{background:rgba(255,255,255,.85);border-radius:99px;padding:8px 16px;font-weight:900;font-size:14px}
+
+@media (max-width:760px){
+  .logo .logo-text{display:none}
+  .dots{display:none}
+  .topbar{height:58px}
+  .slide{padding:70px 12px 100px}
+  .food-btn{width:62px;height:62px;font-size:31px}
+  .light{width:76px;height:76px;font-size:11px}
+  .nav-btn{width:54px;height:54px}
+  .pptx-btn span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01s !important;transition-duration:.01s !important}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="appleGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#e63946"/>
+  </linearGradient>
+</defs></svg>
+
+<canvas id="confettiCanvas"></canvas>
+
+<header class="topbar">
+  <div class="logo"><span class="logo-emoji">🍎</span><span class="logo-text">Страна Здоровья</span></div>
+  <div class="spacer"></div>
+  <div class="star-chip" id="starChip">⭐ <span id="starCount">0</span>/13</div>
+  <button class="icon-btn" id="soundBtn" title="Звук вкл/выкл" aria-pressed="true">🔊</button>
+  <button class="icon-btn pptx-btn" id="pptxBtn" title="Скачать версию для PowerPoint">⬇️ <span>PPTX</span></button>
+  <button class="icon-btn" id="fsBtn" title="На весь экран">⛶</button>
+</header>
+
+<main class="deck" id="deck">
+
+<!-- ============ СЛАЙД 1 ============ -->
+<section class="slide active" style="--bg1:#ffe66d;--bg2:#ffb703" data-deco="🍎 🥕 🍓 🥦 🍊 🥝 🍇 🌽">
+  <div class="slide-inner">
+    <span class="sun-big pop">☀️</span>
+    <div class="kicker pop" style="--d:.05s">Остановка 1 · Старт приключения</div>
+    <h1 class="slide-title pop" style="--d:.12s">Путешествие<br>в страну Здоровья!</h1>
+    <div class="mascot-wrap pop" id="mascot1" style="--d:.2s;width:min(190px,42vw)"></div>
+    <p class="lead pop" style="--d:.28s">Привет! Я — Яблочко. Пройди 15 остановок, играй, собирай звёзды ⭐ и стань супергероем здоровья!</p>
+    <button class="btn btn-green pop" style="--d:.36s" id="startBtn">🚀 Начать путешествие</button>
+    <div class="hint-chips pop" style="--d:.44s">
+      <span>▶ кнопки внизу</span><span>⌨️ стрелки</span><span>👆 свайп</span>
+    </div>
+    <div class="fun-note pop" style="--d:.5s">Для детей 6–9 лет. По материалам Минздрава России, НМИЦ ТПМ, НМИЦ эндокринологии, НМИЦ радиологии и Сбера.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 2 ============ -->
+<section class="slide" style="--bg1:#d8f3dc;--bg2:#7ed957" data-deco="⚡ 🏃 🧠 🌱 🍎 🥣">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 2 · Энергия</div>
+    <h1 class="slide-title pop" style="--d:.08s">Еда — твоё супертопливо ⚡</h1>
+    <p class="lead pop" style="--d:.16s">Нажимай на полезную еду и заряжай батарейку! Еда помогает бегать, думать и расти.</p>
+    <div class="card pop" style="--d:.24s">
+      <div class="battery"><div class="battery-fill" id="energyFill"></div></div>
+      <div class="battery-label">Энергия: <span id="energyPct">0%</span></div>
+      <div class="food-row" id="energyFoods" style="margin-top:14px">
+        <button class="food-btn" title="Яблоко">🍎</button>
+        <button class="food-btn" title="Каша">🥣</button>
+        <button class="food-btn" title="Молоко">🥛</button>
+        <button class="food-btn" title="Морковь">🥕</button>
+        <button class="food-btn" title="Рыба">🐟</button>
+        <button class="food-btn" title="Яйцо">🥚</button>
+      </div>
+    </div>
+    <div class="badges pop" style="--d:.32s">
+      <div class="badge" id="badgeRun">🏃 Бегать</div>
+      <div class="badge" id="badgeThink">🧠 Думать</div>
+      <div class="badge" id="badgeGrow">🌱 Расти</div>
+    </div>
+    <button class="link-reset" id="energyReset">↺ разрядить батарейку</button>
+    <div class="fun-note pop" style="--d:.4s">Полезная еда — это забота о себе, а не наказание. Разнообразие важнее запретов.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 3 ============ -->
+<section class="slide" style="--bg1:#fff3b0;--bg2:#ffd166" data-deco="🍽️ 🥦 🍚 🐟 🍅 🥚">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 3 · Волшебная тарелка</div>
+    <h1 class="slide-title pop" style="--d:.08s">Собери волшебную тарелку 🍽️</h1>
+    <p class="lead pop" style="--d:.16s">Половина — овощи и фрукты, четверть — каши и хлеб, четверть — белок. Нажимай на еду!</p>
+    <div class="card pop" style="--d:.24s;width:min(880px,96vw)">
+      <div class="plate-layout">
+        <div class="plate-wrap" id="plateWrap">
+          <svg class="plate-svg" viewBox="0 0 320 320">
+            <circle cx="160" cy="160" r="156" fill="#fff"/>
+            <path d="M160,10 A150,150 0 0 0 160,310 Z" fill="#b7e4c7"/>
+            <path d="M160,160 L160,10 A150,150 0 0 1 310,160 Z" fill="#ffe6a7"/>
+            <path d="M160,160 L310,160 A150,150 0 0 1 160,310 Z" fill="#ffc8dd"/>
+            <circle cx="160" cy="160" r="150" fill="none" stroke="#fff" stroke-width="8"/>
+            <g class="slot" id="slot-veg-0"><circle cx="92" cy="105" r="34"/><text x="92" y="107"></text></g>
+            <g class="slot" id="slot-veg-1"><circle cx="92" cy="215" r="34"/><text x="92" y="217"></text></g>
+            <g class="slot" id="slot-grain-0"><circle cx="228" cy="92" r="34"/><text x="228" y="94"></text></g>
+            <g class="slot" id="slot-protein-0"><circle cx="228" cy="228" r="34"/><text x="228" y="230"></text></g>
+          </svg>
+        </div>
+        <div class="plate-groups">
+          <div><div class="plate-group-label">🥬 Овощи и фрукты (½)</div>
+            <button class="plate-chip" data-cat="veg" data-emoji="🥦">🥦</button>
+            <button class="plate-chip" data-cat="veg" data-emoji="🍅">🍅</button>
+            <button class="plate-chip" data-cat="veg" data-emoji="🍓">🍓</button>
+          </div>
+          <div><div class="plate-group-label">🌾 Каши и хлеб (¼)</div>
+            <button class="plate-chip" data-cat="grain" data-emoji="🍚">🍚</button>
+            <button class="plate-chip" data-cat="grain" data-emoji="🍞">🍞</button>
+          </div>
+          <div><div class="plate-group-label">💪 Белок (¼)</div>
+            <button class="plate-chip" data-cat="protein" data-emoji="🐟">🐟</button>
+            <button class="plate-chip" data-cat="protein" data-emoji="🥚"></button>
+            <button class="plate-chip" data-cat="protein" data-emoji="🍗"></button>
+          </div>
+          <div><div class="plate-group-label">🍬 А это?</div>
+            <button class="plate-chip" data-cat="candy" data-emoji="🍬">🍬</button>
+          </div>
+        </div>
+      </div>
+      <div class="legend" style="margin-top:14px">
+        <span style="background:var(--green)">½ овощи и фрукты</span>
+        <span style="background:var(--orange)">¼ каши и хлеб</span>
+        <span style="background:var(--red)">¼ белок</span>
+      </div>
+      <button class="link-reset" id="plateReset" style="margin-top:10px">↺ очистить тарелку</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Сладости живут «за тарелкой» — их едят иногда и понемногу.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 4 ============ -->
+<section class="slide" style="--bg1:#ffe5ec;--bg2:#ffc8dd" data-deco="🌈 🍓 🥕 🌽 🥦 🍇">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 4 · Цветная еда</div>
+    <h1 class="slide-title pop" style="--d:.08s">Радуга на тарелке 🌈</h1>
+    <p class="lead pop" style="--d:.16s">Собери все 5 цветов! Нажимай на полоски радуги — узнаешь, какая еда там живёт.</p>
+    <div class="card pop" style="--d:.24s">
+      <svg class="rainbow-svg" id="rainbowSvg" viewBox="0 0 400 218">
+        <path class="rain-band" data-i="0" d="M20,205 A180,180 0 0 1 380,205" fill="none" stroke="#e63946" stroke-width="26" stroke-linecap="round"/>
+        <path class="rain-band" data-i="1" d="M50,205 A150,150 0 0 1 350,205" fill="none" stroke="#fb8500" stroke-width="26" stroke-linecap="round"/>
+        <path class="rain-band" data-i="2" d="M80,205 A120,120 0 0 1 320,205" fill="none" stroke="#ffb703" stroke-width="26" stroke-linecap="round"/>
+        <path class="rain-band" data-i="3" d="M110,205 A90,90 0 0 1 290,205" fill="none" stroke="#58c264" stroke-width="26" stroke-linecap="round"/>
+        <path class="rain-band" data-i="4" d="M140,205 A60,60 0 0 1 260,205" fill="none" stroke="#9b5de5" stroke-width="26" stroke-linecap="round"/>
+      </svg>
+      <div style="font-weight:900;font-size:19px;margin:8px 0">Собрано цветов: <span id="rainbowCount">0</span>/5</div>
+      <div class="rain-foods" id="rainbowFoods"></div>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Ориентир для 6–9 лет: не меньше 350 г овощей и фруктов в день — например, яблоко + морковка + горсть ягод (рекомендации Минздрава России).</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 5 ============ -->
+<section class="slide" style="--bg1:#f8c8dc;--bg2:#e0aaff" data-deco="🍬 🧁 🍭 🥤 🧃">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 5 · Сахарный детектив</div>
+    <h1 class="slide-title pop" style="--d:.08s">Сахарный секрет напитков 🕵️</h1>
+    <p class="lead pop" style="--d:.16s">Сколько кубиков сахара прячется в стакане? Нажми на каждый напиток и проверь!</p>
+    <div class="drinks pop" style="--d:.24s">
+      <div class="drink-card" data-cubes="0" data-name="Вода">
+        <div class="drink-emoji">💧</div><div class="drink-name">Вода</div>
+        <div class="cubes"></div><div class="sugar-label">нажми, чтобы проверить</div>
+      </div>
+      <div class="drink-card" data-cubes="4" data-name="Сок">
+        <div class="drink-emoji">🧃</div><div class="drink-name">Сок из пакета</div>
+        <div class="cubes"></div><div class="sugar-label">нажми, чтобы проверить</div>
+      </div>
+      <div class="drink-card" data-cubes="6" data-name="Газировка">
+        <div class="drink-emoji">🥤</div><div class="drink-name">Газировка</div>
+        <div class="cubes"></div><div class="sugar-label">нажми, чтобы проверить</div>
+      </div>
+    </div>
+    <p class="lead pop" style="--d:.32s" id="sugarMsg">1 кубик ≈ 1 чайная ложка сахара. Сладкие напитки — для праздника, а не для каждого дня!</p>
+    <div class="fun-note pop" style="--d:.4s">Цифры примерные, для стакана ~200 мл. ВОЗ: добавленного сахара — меньше 50 г в день, а лучше меньше 25 г.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 6 ============ -->
+<section class="slide" style="--bg1:#ede0ff;--bg2:#cdb4db" data-deco="🚦 🧂 🍟 🥦 🍎">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 6 · Светофор еды</div>
+    <h1 class="slide-title pop" style="--d:.08s">Пищевой светофор 🚦</h1>
+    <p class="lead pop" style="--d:.16s">Куда отправить продукт? 🟢 каждый день · 🟡 немного ·  только иногда.</p>
+    <div class="card pop" style="--d:.24s;width:min(560px,94vw)" id="trafficGame">
+      <div class="traffic-item" id="trafficEmoji">🍎</div>
+      <div class="traffic-name" id="trafficName">Яблоко</div>
+      <div class="lights">
+        <button class="light green" data-light="green">КАЖДЫЙ<br>ДЕНЬ</button>
+        <button class="light yellow" data-light="yellow">НЕМНОГО</button>
+        <button class="light red" data-light="red">ИНОГДА</button>
+      </div>
+      <div class="feedback" id="trafficFeedback"></div>
+      <div class="traffic-progress" id="trafficScore"></div>
+    </div>
+    <div class="card reveal" id="trafficResult" style="width:min(560px,94vw)">
+      <div style="font-size:64px">🚦</div>
+      <p class="lead" id="trafficResultText"></p>
+      <button class="btn btn-berry btn-small" id="trafficRestart">🔄 Играть ещё</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">В России такая маркировка-«светофор» помогает видеть, где много соли, сахара и жира.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 7 ============ -->
+<section class="slide" style="--bg1:#caf0f8;--bg2:#4cc9f0" data-deco="💧 🌊 🥤 ☁️ 🐟">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 7 · Водная сила</div>
+    <h1 class="slide-title pop" style="--d:.08s">Вода — источник силы 💧</h1>
+    <p class="lead pop" style="--d:.16s">Наполняй стакан за стаканом! Вода помогает думать, играть и не уставать.</p>
+    <div class="card pop" style="--d:.24s;width:min(420px,92vw)">
+      <div class="glass" id="glassEl"><div class="water" id="waterFill"></div></div>
+      <div style="font-weight:900;font-size:22px;margin:12px 0">Стаканов: <span id="waterCount">0 / 6</span></div>
+      <button class="btn btn-sky" id="pourBtn">💧 Налить стакан</button><br>
+      <button class="link-reset" id="waterReset" style="margin-top:10px">↺ начать заново</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Носи бутылочку воды в школу и на прогулку. В жару и после игр пей больше!</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 8 ============ -->
+<section class="slide" style="--bg1:#d0f4ff;--bg2:#8ecae6" data-deco=" ⚽ 🚴 🤸  🏃">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 8 · Движение</div>
+    <h1 class="slide-title pop" style="--d:.08s">Прыг-скок разминка 🦘</h1>
+    <p class="lead pop" style="--d:.16s">Нажимай «ПРЫГ!» и прыгай вместе с Яблочком — целых 10 раз!</p>
+    <div class="card pop" style="--d:.24s">
+      <div class="jump-stage">
+        <svg class="ring" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="54" stroke="rgba(61,44,41,.12)" stroke-width="10" fill="none"/>
+          <circle id="jumpRing" cx="60" cy="60" r="54" stroke="#fb8500" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292" transform="rotate(-90 60 60)"/>
+        </svg>
+        <div class="mascot-wrap jump-mascot" id="jumpMascot"></div>
+      </div>
+      <div class="jump-count"><span id="jumpCount">0</span> / 10</div>
+      <button class="btn btn-amber" id="jumpBtn" style="margin-top:8px">🦘 ПРЫГ!</button>
+      <p class="lead" id="jumpMsg" style="font-size:17px;margin-top:10px">Движение каждый день — сердце, мышцы и настроение говорят «спасибо»!</p>
+      <button class="link-reset" id="jumpReset">↺ ещё разок</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Даже 5-минутная разминка лучше, чем ничего. Активные тренировки — хотя бы 3 раза в неделю.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 9 ============ -->
+<section class="slide dark" style="--bg1:#2b3a67;--bg2:#1d2d50" data-deco="⭐  💤 ⭐  💤">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 9 · Ночная зарядка</div>
+    <h1 class="slide-title pop" style="--d:.08s">Сон — ночная зарядка 😴</h1>
+    <p class="lead pop" style="--d:.16s">Переключи день на ночь и помоги Яблочку подготовиться ко сну!</p>
+    <div class="sleep-scene pop" style="--d:.24s" id="sleepScene">
+      <span class="sun-icon">☀️</span><span class="moon-icon">🌙</span>
+      <span class="star-dot" style="left:12%;top:14%">✦</span>
+      <span class="star-dot" style="left:30%;top:8%;animation-delay:.4s">✦</span>
+      <span class="star-dot" style="left:55%;top:16%;animation-delay:.8s">✦</span>
+      <span class="star-dot" style="left:76%;top:30%;animation-delay:.2s">✦</span>
+      <span class="star-dot" style="left:8%;top:40%;animation-delay:1s">✦</span>
+      <div style="position:relative;display:inline-block">
+        <div class="mascot-wrap" id="sleepMascot" style="width:130px"></div>
+        <span class="zzz" style="right:-26px;top:-6px">Z</span>
+        <span class="zzz" style="right:-44px;top:-24px;animation-delay:.6s;font-size:32px">Z</span>
+      </div>
+      <div class="switch-row" style="margin-top:10px">
+        <span>День</span>
+        <label class="switch"><input type="checkbox" id="nightToggle"><span class="track"></span></label>
+        <span>Ночь</span>
+      </div>
+      <div class="sleep-steps" id="sleepSteps">
+        <button class="sleep-step">🪥 Почистить зубы <span class="tick">⭐</span></button>
+        <button class="sleep-step">📵 Отложить планшет и телефон <span class="tick">⭐</span></button>
+        <button class="sleep-step">📖 Почитать книжку с мамой или папой <span class="tick">⭐</span></button>
+      </div>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Ложись спать в одно и то же время — сон помогает расти, учиться и быть сильным.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 10 ============ -->
+<section class="slide" style="--bg1:#ffe8cc;--bg2:#ffb26b" data-deco="📺 🛡️ 🧠 🍭 📢">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 10 · Рекламный щит</div>
+    <h1 class="slide-title pop" style="--d:.08s">Щит от хитрой рекламы 🛡️</h1>
+    <p class="lead pop" style="--d:.16s">Правда или обман? Ответь на 3 вопроса и получи суперщит!</p>
+    <div class="card pop" style="--d:.24s;width:min(600px,94vw)" id="adsGame">
+      <div style="font-size:52px">📺</div>
+      <p class="lead" id="adsStatement" style="margin:10px 0"></p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-green btn-small" data-ads="true">✅ Правда</button>
+        <button class="btn btn-red btn-small" data-ads="false">❌ Обман</button>
+      </div>
+      <div class="feedback" id="adsFeedback" style="margin-top:12px"></div>
+    </div>
+    <div class="card reveal" id="adsResult" style="width:min(600px,94vw)">
+      <div style="font-size:76px">🛡️</div>
+      <p class="lead">Твой щит от рекламы готов! Выбирай глазами и составом, а не картинкой.</p>
+      <button class="btn btn-amber btn-small" id="adsRestart">🔄 Ещё раз</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Исследования показывают: реклама с блогерами и звёздами заставляет детей чаще выбирать вредную еду.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 11 ============ -->
+<section class="slide" style="--bg1:#d8f3dc;--bg2:#80ed99" data-deco="🤖 💬 📱 💡 ">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 11 · Умный помощник</div>
+    <h1 class="slide-title pop" style="--d:.08s">Робот-помощник Витя 🤖</h1>
+    <p class="lead pop" style="--d:.16s">Задай Вите вопросы! Он умный, но помни: он помощник, а не врач.</p>
+    <div class="chat pop" style="--d:.24s" id="chatBox">
+      <div class="msg bot">Привет! Я Витя 🤖 — цифровой помощник. Спрашивай про еду, воду и привычки!</div>
+    </div>
+    <div class="chat-chips pop" style="--d:.32s">
+      <button class="chat-chip" data-q="drink">💧 Что попить?</button>
+      <button class="chat-chip" data-q="snack">🍎 Что погрызть?</button>
+      <button class="chat-chip" data-q="doctor">🩺 Ты врач?</button>
+      <button class="chat-chip" data-q="strong">💪 Как стать сильным?</button>
+    </div>
+    <div class="fun-note pop" style="--d:.4s">Цифровые помощники дополняют врача, а не заменяют. Вопросы о лекарствах и лечении — только к врачу!</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 12 ============ -->
+<section class="slide" style="--bg1:#ffd6ba;--bg2:#ff9770" data-deco="❤️ 🩺 📣 ">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 12 · Важные сигналы</div>
+    <h1 class="slide-title pop" style="--d:.08s">Когда звать взрослого 🚨</h1>
+    <p class="lead pop" style="--d:.16s">Это сигналы тела «SOS». Нажми на карточку, а потом позови взрослого!</p>
+    <div class="help-grid pop" style="--d:.24s">
+      <button class="help-card" data-msg="😖 Живот сильно болит? Сразу скажи взрослому — терпеть нельзя!"><span class="he">😖</span>Сильно болит живот</button>
+      <button class="help-card" data-msg="🤢 Тошнит и трудно пить? Взрослый поможет и вызовет врача."><span class="he">🤢</span>Тошнит</button>
+      <button class="help-card" data-msg="😵 Голова кружится и всё плывёт? Скажи взрослому прямо сейчас!"><span class="he">😵</span>Кружится голова</button>
+      <button class="help-card" data-msg="🔴 Сыпь или отёк после еды? Это может быть аллергия — зови взрослого!"><span class="he">🔴</span>Сыпь или отёк</button>
+    </div>
+    <div class="help-msg" id="helpMsg"></div>
+    <button class="btn btn-red pop" style="--d:.32s" id="callAdultBtn">📣 Позвать взрослого!</button>
+    <div class="fun-note pop" style="--d:.4s">Просить помощь — это смело и правильно. Взрослые и врачи всегда на твоей стороне. ❤️</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 13 ============ -->
+<section class="slide" style="--bg1:#fff3b0;--bg2:#ffb703" data-deco="🎮 🧺 🍎 🍬 🥕 🍰">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 13 · Большая игра</div>
+    <h1 class="slide-title pop" style="--d:.08s">Каждый день или иногда? 🧺</h1>
+    <p class="lead pop" style="--d:.16s">Разложи 8 продуктов по корзинкам. Собери 6 правильных ответов и получи звезду!</p>
+    <div id="sortGame" class="pop" style="--d:.24s;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
+      <div class="sort-card" id="sortCard">
+        <div class="sort-emoji" id="sortEmoji">🍎</div>
+        <div class="sort-name" id="sortName">Яблоко</div>
+      </div>
+      <div class="baskets">
+        <button class="basket" data-sort="daily"><span class="be">🥗</span>Каждый день</button>
+        <button class="basket sometimes" data-sort="sometimes"><span class="be">🍭</span>Иногда</button>
+      </div>
+      <div class="traffic-progress"><span id="sortProgress"></span> · <span id="sortScore"></span></div>
+    </div>
+    <div class="card reveal" id="sortResult" style="width:min(560px,94vw)">
+      <div style="font-size:64px">🎉</div>
+      <p class="lead" id="sortResultText"></p>
+      <button class="btn btn-green btn-small" id="sortRestart">🔄 Играть ещё</button>
+    </div>
+    <div class="fun-note pop" style="--d:.32s">Никаких «плохих» продуктов — есть «каждый день» и «иногда». Главное — баланс!</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 14 ============ -->
+<section class="slide" style="--bg1:#d8f3dc;--bg2:#a7e8bd" data-deco="🏅  🌱 💪 ⭐ 🌈">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 14 · Челлендж</div>
+    <h1 class="slide-title pop" style="--d:.08s">Твой челлендж недели 🏅</h1>
+    <p class="lead pop" style="--d:.16s">Отмечай галочками, что получилось. Прогресс сохраняется — возвращайся каждый день!</p>
+    <div class="check-list pop" style="--d:.24s" id="challengeList">
+      <button class="check-row"><span class="check-box"></span>🌈 Съесть 5 цветов овощей и фруктов за неделю</button>
+      <button class="check-row"><span class="check-box"></span>🏃 3 активные игры по 20 минут</button>
+      <button class="check-row"><span class="check-box"></span>💧 Пить воду вместо газировки 3 дня</button>
+      <button class="check-row"><span class="check-box"></span>😴 Ложиться спать вовремя 5 вечеров</button>
+      <button class="check-row"><span class="check-box"></span>🍬 Одно сладкое «иногда» — без страха и вины</button>
+    </div>
+    <div class="progress pop" style="--d:.32s"><div class="progress-fill" id="challengeFill"></div></div>
+    <div style="font-weight:900;font-size:18px">Выполнено: <span id="challengeCount">0</span>/5</div>
+    <div class="reveal" id="medalBox"><div class="medal">🏅</div><p class="lead">Челлендж пройден! Ты — чемпион привычек!</p></div>
+    <button class="link-reset" id="challengeReset">↺ начать неделю заново</button>
+    <div class="fun-note pop" style="--d:.4s">Маленькие шаги закрепляют привычку лучше, чем строгие запреты.</div>
+  </div>
+</section>
+
+<!-- ============ СЛАЙД 15 ============ -->
+<section class="slide" style="--bg1:#caf0f8;--bg2:#90e0ef" data-deco=" 🎉 ⭐ 🏆 💪 🍎 🎈">
+  <div class="slide-inner">
+    <div class="kicker pop">Остановка 15 · Финал</div>
+    <h1 class="slide-title pop" style="--d:.08s">Ты — супергерой здоровья! 💪</h1>
+    <div class="mascot-wrap pop" id="mascot15" style="--d:.16s;width:min(150px,34vw)"></div>
+    <div class="recap pop" style="--d:.24s">
+      <span title="Тарелка">🍽️</span><span title="Радуга">🌈</span><span title="Вода">💧</span><span title="Движение">🏃</span><span title="Сон">😴</span><span title="Щит">🛡️</span>
+    </div>
+    <div class="pop" style="--d:.32s;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center">
+      <input class="name-input" id="kidName" maxlength="20" placeholder="Как тебя зовут?">
+      <button class="btn btn-amber btn-small" id="diplomaBtn">🏆 Получить диплом</button>
+    </div>
+    <div class="diploma reveal" id="diplomaCard">
+      <h3>🎖️ ДИПЛОМ СУПЕРГЕРОЯ ЗДОРОВЬЯ</h3>
+      <div class="dname" id="diplomaName">Друг</div>
+      <p style="font-weight:800;margin:6px 0">прошёл страну Здоровья и собрал звёзд: <b id="diplomaStars">0</b>/13 ⭐</p>
+      <p style="font-weight:700;color:var(--ink2);font-size:14px;margin:6px 0">Теперь ты знаешь: вкусная еда + движение + сон + помощь взрослых = суперсила!</p>
+    </div>
+    <div class="pop" style="--d:.4s;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-berry" id="saluteBtn">🎉 Салют!</button>
+      <button class="btn btn-sky" id="restartBtn">🔄 Пройти ещё раз</button>
+    </div>
+    <div class="fun-note pop" style="--d:.48s">Растим здоровье вместе: семья, школа, врач и умные помощники. До новых приключений!</div>
+  </div>
+</section>
+
+</main>
+
+<nav class="bottombar">
+  <button class="nav-btn" id="prevBtn" aria-label="Назад">◀</button>
+  <div class="dots" id="dots"></div>
+  <div class="counter-chip" id="slideCounter">1 / 15</div>
+  <button class="nav-btn" id="nextBtn" aria-label="Вперёд">▶</button>
+</nav>
+
+<div id="toast" role="status"></div>
+<noscript><p style="position:fixed;inset:0;background:#fff8e7;display:grid;place-items:center;font-weight:900;z-index:999">Включи JavaScript, чтобы началось приключение! 🍎</p></noscript>
+
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js" defer></script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const TOTAL_SLIDES = 15, TOTAL_STARS = 13;
+const PALETTE = ['#ef476f','#ffb703','#58c264','#4cc9f0','#9b5de5','#fb8500','#f15bb5'];
+
+/* ================= ЗВУК ================= */
+let actx = null, soundOn = true;
+function ac(){ try{ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} return actx; }
+document.addEventListener('pointerdown', ()=>ac(), {once:true});
+function tone(f, t=0.12, type='triangle', vol=0.15, when=0, glide=null){
+  if(!soundOn) return; const c = ac(); if(!c) return;
+  try{
+    const o=c.createOscillator(), g=c.createGain(), now=c.currentTime+when;
+    o.type=type; o.frequency.setValueAtTime(f,now);
+    if(glide) o.frequency.exponentialRampToValueAtTime(glide,now+t);
+    g.gain.setValueAtTime(0.0001,now); g.gain.linearRampToValueAtTime(vol,now+0.012);
+    g.gain.exponentialRampToValueAtTime(0.001,now+t);
+    o.connect(g).connect(c.destination); o.start(now); o.stop(now+t+0.05);
+  }catch(e){}
+}
+const sfx = {
+  pop(){ tone(620,.09,'triangle',.16); },
+  good(){ tone(523,.12,'triangle',.14); tone(659,.12,'triangle',.14,.09); tone(784,.2,'triangle',.14,.18); },
+  bad(){ tone(220,.18,'sawtooth',.06); tone(165,.24,'sawtooth',.06,.11); },
+  star(){ [880,1108,1318,1760].forEach((f,i)=>tone(f,.16,'sine',.12,i*.07)); },
+  whoosh(){ tone(280,.28,'sine',.09,0,900); },
+  water(){ tone(420,.14,'sine',.14,0,760); }
+};
+$('soundBtn').addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+  $('soundBtn').setAttribute('aria-pressed', String(soundOn));
+  if(soundOn) sfx.good();
+  toast(soundOn ? '🔊 Звук включён' : '🔇 Звук выключен');
+});
+
+/* ================= САЛЮТ ================= */
+const cvs = $('confettiCanvas'), ctx = cvs.getContext('2d');
+let parts = [], raf = null;
+function sizeCanvas(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+sizeCanvas(); addEventListener('resize', sizeCanvas);
+function burst(x=innerWidth/2, y=innerHeight*0.35, n=90, colors=PALETTE){
+  for(let i=0;i<n;i++){
+    parts.push({x,y,vx:(Math.random()-.5)*13,vy:-Math.random()*11-3,g:.34,
+      s:Math.random()*8+5,c:colors[Math.floor(Math.random()*colors.length)],
+      r:Math.random()*Math.PI,vr:(Math.random()-.5)*.3,life:1});
+  }
+  if(!raf) loop();
+}
+function loop(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.r+=p.vr; p.life-=.008;
+    ctx.save(); ctx.globalAlpha=Math.max(p.life,0); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+    ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.62); ctx.restore(); });
+  parts = parts.filter(p=>p.life>0 && p.y<cvs.height+40);
+  raf = parts.length ? requestAnimationFrame(loop) : null;
+  if(!raf) ctx.clearRect(0,0,cvs.width,cvs.height);
+}
+
+/* ================= ТОСТ И ЗВЁЗДЫ ================= */
+let toastTimer = null;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+const earned = new Set();
+function earn(id){
+  if(earned.has(id)) return;
+  earned.add(id);
+  $('starCount').textContent = earned.size;
+  sfx.star(); toast('⭐ Звезда получена!'); burst(innerWidth/2, innerHeight*.3, 70);
+}
+
+/* ================= МАСКОТ ================= */
+function mascotSVG(mood='happy'){
+  const eyes = mood==='sleep'
+    ? '<path d="M38 62 q7 7 14 0" stroke="#3d2c29" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M68 62 q7 7 14 0" stroke="#3d2c29" stroke-width="4" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="45" cy="61" r="8" fill="#fff"/><circle cx="47" cy="63" r="4" fill="#3d2c29"/><circle cx="75" cy="61" r="8" fill="#fff"/><circle cx="77" cy="63" r="4" fill="#3d2c29"/>';
+  const mouth = mood==='sleep'
+    ? '<ellipse cx="60" cy="88" rx="6" ry="7" fill="#3d2c29"/>'
+    : '<path d="M46 84 Q60 97 74 84" stroke="#3d2c29" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  return `<svg viewBox="0 0 120 132" aria-hidden="true">
+    <path d="M60 34 C60 24 62 18 67 11" stroke="#8b5a2b" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="79" cy="17" rx="15" ry="7.5" fill="#58c264" transform="rotate(-24 79 17)"/>
+    <path d="M60 36 C34 18 12 40 14 70 C16 100 36 120 60 120 C84 120 104 100 106 70 C108 40 86 18 60 36 Z" fill="url(#appleGrad)"/>
+    <ellipse cx="37" cy="54" rx="9" ry="15" fill="rgba(255,255,255,.35)" transform="rotate(14 37 54)"/>
+    <path d="M15 74 Q3 80 7 93" stroke="#e63946" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path class="arm-r" d="M105 74 Q117 80 113 93" stroke="#e63946" stroke-width="7" fill="none" stroke-linecap="round"/>
+    ${eyes}
+    <circle cx="33" cy="77" r="6" fill="#ffb3c1" opacity=".85"/>
+    <circle cx="87" cy="77" r="6" fill="#ffb3c1" opacity=".85"/>
+    ${mouth}
+    <rect x="42" y="118" width="12" height="11" rx="5.5" fill="#8b5a2b"/>
+    <rect x="66" y="118" width="12" height="11" rx="5.5" fill="#8b5a2b"/>
+  </svg>`;
+}
+$('mascot1').innerHTML = mascotSVG();
+$('jumpMascot').innerHTML = mascotSVG();
+$('sleepMascot').innerHTML = mascotSVG('sleep');
+$('mascot15').innerHTML = mascotSVG();
+document.querySelectorAll('.mascot-wrap').forEach(m=>{
+  m.addEventListener('click', ()=>{ sfx.pop(); m.classList.remove('wiggle'); void m.offsetWidth; m.classList.add('wiggle'); });
+});
+
+/* ================= ФОНОВЫЕ УКРАШЕНИЯ ================= */
+document.querySelectorAll('.slide').forEach(s=>{
+  const list = (s.dataset.deco||'').split(' ').filter(Boolean);
+  for(let i=0;i<10 && list.length;i++){
+    const sp = document.createElement('span');
+    sp.className='float-emoji'; sp.textContent = list[i%list.length];
+    sp.style.left = (3+Math.random()*90)+'%';
+    sp.style.top = (4+Math.random()*84)+'%';
+    sp.style.fontSize = (22+Math.random()*26)+'px';
+    sp.style.opacity = (0.35+Math.random()*0.4).toFixed(2);
+    sp.style.animationDuration = (5+Math.random()*4)+'s';
+    sp.style.animationDelay = (Math.random()*4)+'s';
+    s.appendChild(sp);
+  }
+});
+
+/* ================= НАВИГАЦИЯ ================= */
+let cur = 1; const visited = new Set([1]);
+const slideEls = [...document.querySelectorAll('.slide')];
+const titles = ['Старт','Супертопливо','Тарелка','Радуга','Сахар','Светофор','Вода','Прыжки','Сон','Реклама','Робот','Помощь','Игра','Челлендж','Финал'];
+const dotsBox = $('dots');
+titles.forEach((t,i)=>{
+  const d = document.createElement('button');
+  d.className='dot'+(i===0?' active visited':''); d.title = (i+1)+'. '+t;
+  d.setAttribute('aria-label','Слайд '+(i+1)+': '+t);
+  d.addEventListener('click', ()=>goTo(i+1));
+  dotsBox.appendChild(d);
+});
+function goTo(n){
+  n = Math.max(1, Math.min(TOTAL_SLIDES, n));
+  if(n===cur) return;
+  cur = n; visited.add(n);
+  slideEls.forEach((s,i)=>s.classList.toggle('active', i===n-1));
+  [...dotsBox.children].forEach((d,i)=>{
+    d.classList.toggle('active', i===n-1);
+    d.classList.toggle('visited', visited.has(i+1));
+  });
+  $('slideCounter').textContent = n+' / '+TOTAL_SLIDES;
+  $('prevBtn').disabled = n===1; $('nextBtn').disabled = n===TOTAL_SLIDES;
+  sfx.whoosh();
+  if(n===TOTAL_SLIDES){ $('diplomaStars').textContent = earned.size; setTimeout(()=>burst(innerWidth/2, innerHeight*.3, 110), 450); }
+}
+$('prevBtn').disabled = true;
+$('prevBtn').addEventListener('click', ()=>goTo(cur-1));
+$('nextBtn').addEventListener('click', ()=>goTo(cur+1));
+$('startBtn').addEventListener('click', ()=>{ burst(innerWidth/2, innerHeight*.4, 90); goTo(2); });
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { e.preventDefault(); goTo(cur+1); }
+  if(e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); goTo(cur-1); }
+});
+let tx=0, ty=0;
+document.addEventListener('touchstart', e=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>70 && Math.abs(dy)<50) goTo(cur + (dx<0?1:-1));
+}, {passive:true});
+$('fsBtn').addEventListener('click', ()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen().catch(()=>{});
+});
+
+/* ================= СЛАЙД 2: БАТАРЕЙКА ================= */
+let energy = 0;
+function renderEnergy(){
+  $('energyFill').style.width = energy+'%';
+  $('energyPct').textContent = energy+'%';
+  $('badgeRun').classList.toggle('on', energy>=34);
+  $('badgeThink').classList.toggle('on', energy>=67);
+  $('badgeGrow').classList.toggle('on', energy>=100);
+}
+document.querySelectorAll('#energyFoods .food-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(energy>=100){ toast('🔋 Батарейка уже полна!'); return; }
+    energy = Math.min(100, energy+17);
+    b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+    sfx.pop(); renderEnergy();
+    if(energy>=100){ earn('energy'); toast('🔋 Супертопливо заряжено!'); }
+  });
+});
+$('energyReset').addEventListener('click', ()=>{ energy=0; renderEnergy(); sfx.pop(); });
+
+/* ================= СЛАЙД 3: ТАРЕЛКА ================= */
+const plateSlots = {veg:[false,false], grain:[false], protein:[false]};
+function slotG(cat,i){ return $('slot-'+cat+'-'+i); }
+document.querySelectorAll('.plate-chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const cat=b.dataset.cat, emoji=b.dataset.emoji;
+    if(cat==='candy'){ sfx.pop(); toast('🍬 Сладости живут за тарелкой — только иногда!'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; }
+    const arr=plateSlots[cat], i=arr.findIndex(v=>!v);
+    if(i===-1){ sfx.bad(); toast('Эта часть тарелки уже полна! Попробуй другую еду.'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; }
+    arr[i]=true;
+    const g=slotG(cat,i); g.classList.add('filled'); g.querySelector('text').textContent=emoji;
+    sfx.pop();
+    const full = Object.values(plateSlots).every(a=>a.every(Boolean));
+    if(full){ $('plateWrap').classList.add('glow'); earn('plate'); toast('🍽️ Идеальная тарелка готова!'); }
+  });
+});
+$('plateReset').addEventListener('click', ()=>{
+  Object.keys(plateSlots).forEach(cat=>plateSlots[cat].forEach((_,i)=>{
+    plateSlots[cat][i]=false; const g=slotG(cat,i); g.classList.remove('filled'); g.querySelector('text').textContent='';
+  }));
+  $('plateWrap').classList.remove('glow'); sfx.pop();
+});
+
+/* ================= СЛАЙД 4: РАДУГА ================= */
+const rainbowData = [
+  {name:'Красные', foods:'🍓 🍅', c:'#e63946'},
+  {name:'Оранжевые', foods:'🥕 ', c:'#fb8500'},
+  {name:'Жёлтые', foods:' 🍋', c:'#ffb703'},
+  {name:'Зелёные', foods:'🥦 🥝', c:'#58c264'},
+  {name:'Фиолетовые', foods:'🍇 🍆', c:'#9b5de5'}
+];
+let rainGot = 0;
+document.querySelectorAll('.rain-band').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    if(p.classList.contains('got')){ toast('Этот цвет уже собран!'); return; }
+    p.classList.add('got'); rainGot++;
+    const d = rainbowData[+p.dataset.i];
+    const chip = document.createElement('div');
+    chip.className='rain-chip'; chip.style.borderColor=d.c;
+    chip.innerHTML = d.foods + '<span>'+d.name+'</span>';
+    $('rainbowFoods').appendChild(chip);
+    $('rainbowCount').textContent = rainGot;
+    sfx.good();
+    if(rainGot===5){ $('rainbowSvg').classList.add('complete'); earn('rainbow'); toast('🌈 Радуга собрана! Ешь разноцветно!'); }
+  });
+});
+
+/* ================= СЛАЙД 5: САХАР ================= */
+let sugarRevealed = 0;
+document.querySelectorAll('.drink-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    if(card.dataset.done) return;
+    card.dataset.done='1'; card.classList.add('revealed');
+    const n=+card.dataset.cubes, box=card.querySelector('.cubes'), label=card.querySelector('.sugar-label');
+    label.textContent='считаем...';
+    for(let i=0;i<n;i++){
+      setTimeout(()=>{ const c=document.createElement('div'); c.className='cube'; box.appendChild(c); tone(480+i*70,.08,'triangle',.13); }, i*170);
+    }
+    setTimeout(()=>{
+      label.textContent = n===0 ? '0 кубиков — чемпион! 💧' : '≈ '+n+' кубиков сахара';
+      label.classList.toggle('champ', n===0);
+      sugarRevealed++;
+      if(sugarRevealed===3){ earn('sugar'); $('sugarMsg').textContent='💧 Вода — единственный напиток без сахара. Пей воду каждый день!'; sfx.good(); }
+    }, n*170+250);
+  });
+});
+
+/* ================= СЛАЙД 6: СВЕТОФОР ================= */
+const trafficItems = [
+  {e:'🍎',n:'Яблоко',a:'green',why:'Свежие фрукты — каждый день!'},
+  {e:'🥦',n:'Брокколи',a:'green',why:'Овощи — суперсила тарелки!'},
+  {e:'🥣',n:'Каша',a:'green',why:'Даёт энергию надолго!'},
+  {e:'🧀',n:'Сыр',a:'yellow',why:'Полезный, но жирный — ешь немного.'},
+  {e:'🍞',n:'Белый хлеб',a:'yellow',why:'Лучше цельнозерновой, и немного.'},
+  {e:'🍟',n:'Картошка фри',a:'red',why:'Много жира и соли — только иногда.'},
+  {e:'🥤',n:'Газировка',a:'red',why:'Очень много сахара — редко!'},
+  {e:'🌭',n:'Хот-дог с колбасой',a:'red',why:'В колбасе много соли — редко.'}
+];
+let tIdx=0, tOk=0, tLock=false;
+function renderTraffic(){
+  const it=trafficItems[tIdx];
+  $('trafficEmoji').textContent=it.e; $('trafficName').textContent=it.n;
+  $('trafficFeedback').textContent=''; $('trafficFeedback').className='feedback';
+  $('trafficScore').textContent='Карточка '+(tIdx+1)+' / '+trafficItems.length+' · Верно: '+tOk;
+}
+document.querySelectorAll('.light').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(tLock || tIdx>=trafficItems.length) return;
+    tLock=true;
+    const it=trafficItems[tIdx], good=it.a===b.dataset.light;
+    if(good) tOk++;
+    const f=$('trafficFeedback');
+    f.textContent=(good?'✅ Верно! ':'💡 Почти! ')+it.why;
+    f.className='feedback '+(good?'good':'warn');
+    good?sfx.good():sfx.bad();
+    $('trafficScore').textContent='Карточка '+(tIdx+1)+' / '+trafficItems.length+' · Верно: '+tOk;
+    setTimeout(()=>{
+      tIdx++; tLock=false;
+      if(tIdx>=trafficItems.length){
+        $('trafficGame').style.display='none'; $('trafficResult').classList.add('show');
+        $('trafficResultText').textContent = tOk===8 ? '🏆 Идеально! Все 8 верно! Ты знаток светофора!' :
+          tOk>=6 ? '🎉 Отлично! Верно: '+tOk+' из 8. Звезда твоя!' :
+          'Верно: '+tOk+' из 8. Попробуй ещё — нужно 6 для звезды!';
+        if(tOk>=6) earn('traffic');
+      } else renderTraffic();
+    }, 1400);
+  });
+});
+$('trafficRestart').addEventListener('click', ()=>{
+  tIdx=0; tOk=0; tLock=false;
+  $('trafficResult').classList.remove('show'); $('trafficGame').style.display='';
+  renderTraffic(); sfx.pop();
+});
+renderTraffic();
+
+/* ================= СЛАЙД 7: ВОДА ================= */
+let cups=0;
+$('pourBtn').addEventListener('click', ()=>{
+  if(cups>=6){ toast('💧 Стакан полон! Ты водный чемпион!'); return; }
+  cups++;
+  $('waterFill').style.height=(cups/6*100)+'%';
+  $('waterCount').textContent=cups+' / 6';
+  for(let i=0;i<4;i++){
+    const b=document.createElement('span'); b.className='bubble';
+    b.style.left=(12+Math.random()*70)+'%'; b.style.animationDelay=(i*.12)+'s';
+    $('glassEl').appendChild(b);
+    b.addEventListener('animationend', ()=>b.remove());
+  }
+  sfx.water();
+  if(cups===6){ earn('water'); toast('💧 Водный баланс — супер!'); }
+});
+$('waterReset').addEventListener('click', ()=>{
+  cups=0; $('waterFill').style.height='0%'; $('waterCount').textContent='0 / 6'; sfx.pop();
+});
+
+/* ================= СЛАЙД 8: ПРЫЖКИ ================= */
+let jumps=0; const RING=339.292;
+$('jumpBtn').addEventListener('click', ()=>{
+  if(jumps>=10){ toast('💪 Разминка уже готова!'); return; }
+  jumps++;
+  $('jumpCount').textContent=jumps;
+  $('jumpRing').style.strokeDashoffset = RING*(1-jumps/10);
+  const m=$('jumpMascot'); m.classList.remove('jumping'); void m.offsetWidth; m.classList.add('jumping');
+  tone(380+jumps*45,.1,'triangle',.17);
+  if(jumps===10){ earn('jump'); $('jumpMsg').textContent='🎉 10 прыжков! Мышцы сказали спасибо!'; burst(innerWidth/2, innerHeight*.4, 80); }
+});
+$('jumpReset').addEventListener('click', ()=>{
+  jumps=0; $('jumpCount').textContent='0'; $('jumpRing').style.strokeDashoffset=RING;
+  $('jumpMsg').textContent='Движение каждый день — сердце, мышцы и настроение говорят «спасибо»!'; sfx.pop();
+});
+
+/* ================= СЛАЙД 9: СОН ================= */
+function checkSleepStar(){
+  const allDone=[...document.querySelectorAll('.sleep-step')].every(s=>s.classList.contains('done'));
+  if($('sleepScene').classList.contains('night') && allDone){ earn('sleep'); toast('😴 Яблочко готово ко сну! Сладких снов!'); }
+}
+$('nightToggle').addEventListener('change', e=>{
+  $('sleepScene').classList.toggle('night', e.target.checked);
+  tone(e.target.checked?300:600,.2,'sine',.12);
+  checkSleepStar();
+});
+document.querySelectorAll('.sleep-step').forEach(s=>{
+  s.addEventListener('click', ()=>{ s.classList.toggle('done'); sfx.pop(); checkSleepStar(); });
+});
+
+/* ================= СЛАЙД 10: РЕКЛАМА ================= */
+const adsQs = [
+  {q:'Реклама всегда рассказывает правду о еде.', a:false, why:'Реклама хочет продать — она часто приукрашивает!'},
+  {q:'Если чипсы рекламирует спортсмен, значит они полезные.', a:false, why:'Спортсмену заплатили. Польза — в составе, а не в рекламе!'},
+  {q:'Состав на упаковке важнее яркой картинки.', a:true, why:'Верно! Смотрим состав, а не картинки.'}
+];
+let aIdx=0, aLock=false;
+function renderAds(){
+  $('adsStatement').textContent=adsQs[aIdx].q;
+  $('adsFeedback').textContent=''; $('adsFeedback').className='feedback';
+}
+document.querySelectorAll('[data-ads]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(aLock || aIdx>=adsQs.length) return;
+    aLock=true;
+    const q=adsQs[aIdx], good=(b.dataset.ads==='true')===q.a;
+    const f=$('adsFeedback');
+    f.textContent=(good?'✅ ':'💡 ')+q.why; f.className='feedback '+(good?'good':'warn');
+    good?sfx.good():sfx.bad();
+    setTimeout(()=>{
+      aIdx++; aLock=false;
+      if(aIdx>=adsQs.length){ $('adsGame').style.display='none'; $('adsResult').classList.add('show'); earn('ads'); }
+      else renderAds();
+    }, 1600);
+  });
+});
+$('adsRestart').addEventListener('click', ()=>{
+  aIdx=0; aLock=false; $('adsResult').classList.remove('show'); $('adsGame').style.display=''; renderAds(); sfx.pop();
+});
+renderAds();
+
+/* ================= СЛАЙД 11: ЧАТ ================= */
+const robotAnswers = {
+  drink:'Вода — лучший друг! 💧 А сладкая газировка — только по праздникам.',
+  snack:'Яблоко, морковка или йогурт без сахара — хрусть и польза! 🍎',
+  doctor:'Я умный помощник, но НЕ врач! 🩺 Если что-то болит — скажи взрослому, он отведёт к врачу.',
+  strong:'Ешь разную полезную еду, двигайся каждый день и спи вовремя — станешь супергероем! 💪'
+};
+const askedSet = new Set();
+function appendMsg(cls, text){
+  const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text;
+  $('chatBox').appendChild(d); $('chatBox').scrollTop=$('chatBox').scrollHeight;
+}
+document.querySelectorAll('.chat-chip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    appendMsg('user', ch.textContent);
+    sfx.pop();
+    const typing=document.createElement('div'); typing.className='typing'; typing.innerHTML='<i></i><i></i><i></i>';
+    $('chatBox').appendChild(typing); $('chatBox').scrollTop=$('chatBox').scrollHeight;
+    setTimeout(()=>{
+      typing.remove();
+      appendMsg('bot', robotAnswers[ch.dataset.q]);
+      tone(760,.1,'sine',.12);
+      askedSet.add(ch.dataset.q);
+      if(askedSet.size>=3) earn('robot');
+    }, 850);
+  });
+});
+
+/* ================= СЛАЙД 12: ПОМОЩЬ ================= */
+document.querySelectorAll('.help-card').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('.help-card').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    $('helpMsg').textContent=c.dataset.msg;
+    tone(330,.15,'sine',.12);
+  });
+});
+$('callAdultBtn').addEventListener('click', ()=>{
+  earn('help'); sfx.good();
+  $('helpMsg').textContent='❤️ Взрослый рядом! Просить помощь — это смело и правильно.';
+  burst(innerWidth/2, innerHeight*.4, 80, ['#ef476f','#f15bb5','#ffb3c1','#ff9770']);
+});
+
+/* ================= СЛАЙД 13: СОРТИРОВКА ================= */
+const sortItems = [
+  {e:'🍎',n:'Яблоко',a:'daily'}, {e:'🥤',n:'Газировка',a:'sometimes'},
+  {e:'🥕',n:'Морковка',a:'daily'}, {e:'🍰',n:'Торт',a:'sometimes'},
+  {e:'🥣',n:'Каша',a:'daily'}, {e:'🍟',n:'Картошка фри',a:'sometimes'},
+  {e:'🐟',n:'Рыба',a:'daily'}, {e:'🍬',n:'Конфета',a:'sometimes'}
+];
+let sIdx=0, sOk=0, sLock=false;
+function renderSort(){
+  const it=sortItems[sIdx];
+  $('sortEmoji').textContent=it.e; $('sortName').textContent=it.n;
+  $('sortProgress').textContent='Продукт '+(sIdx+1)+' / '+sortItems.length;
+  $('sortScore').textContent='Верно: '+sOk;
+}
+document.querySelectorAll('[data-sort]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(sLock || sIdx>=sortItems.length) return;
+    sLock=true;
+    const it=sortItems[sIdx], good=it.a===b.dataset.sort;
+    if(good) sOk++;
+    const card=$('sortCard');
+    card.classList.remove('flash-good','flash-bad'); void card.offsetWidth;
+    card.classList.add(good?'flash-good':'flash-bad');
+    good?sfx.good():sfx.bad();
+    $('sortScore').textContent='Верно: '+sOk;
+    setTimeout(()=>{
+      sIdx++; sLock=false;
+      if(sIdx>=sortItems.length){
+        $('sortGame').style.display='none'; $('sortResult').classList.add('show');
+        $('sortResultText').textContent = sOk>=6
+          ? '🎉 Правильных: '+sOk+' из 8! '+(sOk===8?'Идеально! ':'')+'Звезда твоя!'
+          : 'Правильных: '+sOk+' из 8. Попробуй ещё — нужно 6 для звезды!';
+        if(sOk>=6) earn('sort');
+      } else renderSort();
+    }, 950);
+  });
+});
+$('sortRestart').addEventListener('click', ()=>{
+  sIdx=0; sOk=0; sLock=false;
+  $('sortResult').classList.remove('show'); $('sortGame').style.display='';
+  renderSort(); sfx.pop();
+});
+renderSort();
+
+/* ================= СЛАЙД 14: ЧЕЛЛЕНДЖ ================= */
+const challengeRows = [...document.querySelectorAll('#challengeList .check-row')];
+function loadChallenge(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('hz-challenge')||'[]');
+    challengeRows.forEach((r,i)=>r.classList.toggle('done', !!saved[i]));
+  }catch(e){}
+}
+function updateChallenge(){
+  const done=challengeRows.filter(r=>r.classList.contains('done')).length;
+  $('challengeFill').style.width=(done/5*100)+'%';
+  $('challengeCount').textContent=done;
+  try{ localStorage.setItem('hz-challenge', JSON.stringify(challengeRows.map(r=>r.classList.contains('done')))); }catch(e){}
+  if(done===5){ $('medalBox').classList.add('show'); earn('challenge'); }
+  else $('medalBox').classList.remove('show');
+}
+challengeRows.forEach(r=>r.addEventListener('click', ()=>{ r.classList.toggle('done'); sfx.pop(); updateChallenge(); }));
+$('challengeReset').addEventListener('click', ()=>{
+  challengeRows.forEach(r=>r.classList.remove('done'));
+  try{ localStorage.removeItem('hz-challenge'); }catch(e){}
+  updateChallenge(); sfx.pop(); toast('📅 Новая неделя — новые победы!');
+});
+loadChallenge(); updateChallenge();
+
+/* ================= СЛАЙД 15: ФИНАЛ ================= */
+$('diplomaBtn').addEventListener('click', ()=>{
+  const name=($('kidName').value.trim()||'Друг');
+  $('diplomaName').textContent=name;
+  $('diplomaStars').textContent=earned.size;
+  $('diplomaCard').classList.add('show');
+  sfx.star(); burst(innerWidth/2, innerHeight*.35, 120);
+  toast('🏆 Диплом готов, '+name+'!');
+});
+$('saluteBtn').addEventListener('click', ()=>{
+  sfx.star();
+  burst(innerWidth*.25, innerHeight*.35, 80);
+  setTimeout(()=>burst(innerWidth*.75, innerHeight*.3, 80), 200);
+  setTimeout(()=>burst(innerWidth*.5, innerHeight*.25, 100), 400);
+});
+$('restartBtn').addEventListener('click', ()=>goTo(1));
+
+/* ================= ЭКСПОРТ PPTX ================= */
+const PPTX_DATA = [
+  {c:'FFC94D',e:'🍎☀️',t:'Путешествие в страну Здоровья!',b:['Игра-презентация для детей 6–9 лет','15 остановок: еда, вода, движение, сон','Собирай звёзды и стань супергероем здоровья']},
+  {c:'7ED957',e:'⚡🍎',t:'Еда — твоё супертопливо',b:['Еда помогает бегать, думать и расти','Полезная еда — забота о себе, а не наказание','Разнообразие важнее строгих запретов']},
+  {c:'FFD166',e:'🍽️🥦',t:'Волшебная тарелка',b:['Половина — овощи и фрукты','Четверть — каши, цельнозерновой хлеб','Четверть — белок: рыба, яйца, птица, бобовые','Сладости — «за тарелкой», иногда']},
+  {c:'FFC8DD',e:'🌈',t:'Радуга на тарелке',b:['Ешь овощи и фрукты 5 цветов','Для 6–9 лет: не меньше 350 г в день','Пример: яблоко + морковка + горсть ягод']},
+  {c:'E0AAFF',e:'🕵️',t:'Сахарный секрет напитков',b:['В воде — 0 кубиков сахара','В пакетированном соке — около 4','В газировке — около 6','Сладкие напитки — для праздника, не каждый день']},
+  {c:'CDB4DB',e:'🚦🧂',t:'Пищевой светофор',b:['Зелёный: овощи, фрукты, каши — каждый день','Жёлтый: сыр, хлеб — немного','Красный: чипсы, газировка, колбаса — иногда','Меньше соли и ультрапереработанной еды']},
+  {c:'4CC9F0',e:'💧',t:'Вода — источник силы',b:['Вода — лучший напиток для роста и учёбы','Носи бутылочку в школу и на прогулку','Газировка и сладкие соки — редко и понемногу']},
+  {c:'8ECAE6',e:'🦘⚽',t:'Прыг-скок разминка',b:['Двигайся каждый день: игры, танцы, велосипед','Активные тренировки — 3 раза в неделю','Даже 5-минутная разминка лучше, чем ничего']},
+  {c:'3A4A6B',dark:true,e:'😴🌙',t:'Сон — ночная зарядка',b:['Ложись спать в одно и то же время','Перед сном: зубы, убрать экран, книжка','Сон помогает расти и учиться']},
+  {c:'FFB26B',e:'🛡️📺',t:'Щит от хитрой рекламы',b:['Реклама приукрашивает еду','Звезда в рекламе не делает продукт полезным','Смотрим состав, а не яркую картинку']},
+  {c:'80ED99',e:'🤖💬',t:'Робот-помощник',b:['Умные помощники напоминают о привычках','Они НЕ ставят диагноз и не лечат','Важные вопросы — к взрослому и врачу']},
+  {c:'FF9770',e:'🚨❤️',t:'Когда звать взрослого',b:['Болит живот, тошнит, кружится голова','Сыпь или отёк после еды','Сказать взрослому — смело и правильно']},
+  {c:'FFB703',e:'🧺🎮',t:'Игра: каждый день или иногда?',b:['Яблоко, каша, рыба, морковь — каждый день','Торт, конфета, газировка, фри — иногда','Главное — баланс, а не запреты']},
+  {c:'A7E8BD',e:'🏅🌱',t:'Челлендж недели',b:['5 цветов овощей и фруктов','3 активные игры по 20 минут','Вода вместо газировки 3 дня','Сон вовремя 5 вечеров']},
+  {c:'90E0EF',e:'💪🏆',t:'Ты — супергерой здоровья!',b:['Вкусная еда + движение + сон = суперсила','Просить помощь — это смело','Растим здоровье вместе: семья, школа, врач']}
+];
+$('pptxBtn').addEventListener('click', async ()=>{
+  if(typeof PptxGenJS==='undefined'){ toast('⚠️ Библиотека PPTX не загрузилась. Проверь интернет — HTML-версия работает и без неё!'); return; }
+  const btn=$('pptxBtn'); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='⏳';
+  try{
+    const pptx=new PptxGenJS();
+    pptx.layout='LAYOUT_WIDE';
+    pptx.title='Путешествие в страну Здоровья'; pptx.subject='Презентация для детей 6–9 лет';
+    PPTX_DATA.forEach((s,i)=>{
+      const sl=pptx.addSlide();
+      sl.background={color:s.c};
+      const ink=s.dark?'FFFFFF':'3D2C29';
+      sl.addText(s.e,{x:.6,y:.35,w:12,h:1,fontSize:54});
+      sl.addText(s.t,{x:.6,y:1.45,w:12,h:1,fontSize:36,bold:true,color:ink,fontFace:'Arial'});
+      sl.addText(s.b.map(t=>({text:t,options:{bullet:true,breakLine:true,paraSpaceAfter:12}})),
+        {x:.8,y:2.7,w:11.6,h:3.6,fontSize:22,color:ink,fontFace:'Arial',valign:'top'});
+      sl.addText((i+1)+' / 15 · Страна Здоровья',{x:9.4,y:6.9,w:3.6,h:.4,fontSize:12,color:ink,align:'right',fontFace:'Arial'});
+    });
+    await pptx.writeFile({fileName:'strana-zdorovya.pptx'});
+    toast('✅ PPTX скачан!');
+  }catch(err){ console.error(err); toast('⚠️ Не удалось создать PPTX. HTML-версия работает полностью!'); }
+  btn.disabled=false; btn.innerHTML=old;
+});
+</script>
+</body>
+</html>
